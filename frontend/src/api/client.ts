@@ -96,13 +96,10 @@ const FALLBACK_BOOKS: Book[] = [
 
 const FALLBACK_STATS: DashboardStats = {
   totalBooks: 7,
-  totalCopies: 32,
-  availableCopies: 30,
-  issuedCopies: 2,
+  totalAvailableCopies: 28,
+  totalIssuedCopies: 2,
   totalStudents: 4,
-  activeIssues: 2,
-  totalTransactions: 6,
-  overdueIssues: 0,
+  totalReturnedCount: 5,
 };
 
 function getAuthHeader(): Record<string, string> {
@@ -234,26 +231,23 @@ export const api = {
     } catch {
       return {
         student: { id: 1, studentId: 'S101', name: 'Alex Rivera', email: 'alex@iemcal.ac.in', createdAt: '2026-01-15' },
-        activeBorrowings: [
+        activeLoans: [
           {
             id: 1,
             transactionId: 'TXN-901',
             bookId: 'B101',
-            studentId: 'S101',
-            issueDate: '2026-11-01',
-            status: 'ISSUED',
             bookTitle: 'Introduction to Algorithms (4th Edition)',
-            bookAuthor: 'Cormen, Leiserson, Rivest, Stein',
+            studentId: 'S101',
             studentName: 'Alex Rivera',
-            daysRemaining: 8,
-            isOverdue: false,
+            issueDate: '2026-11-01',
+            returnDate: null,
+            status: 'ISSUED',
+            createdAt: '2026-11-01T10:00:00Z',
           },
         ],
-        recentHistory: [],
         totalBorrowedCount: 1,
-        activeLoansCount: 1,
-        overdueCount: 0,
-        fineAccrued: 0,
+        returnedCount: 0,
+        history: [],
       };
     }
   },
@@ -270,14 +264,13 @@ export const api = {
           id: 1,
           transactionId: 'TXN-901',
           bookId: 'B101',
-          studentId: 'S101',
-          issueDate: '2026-11-01',
-          status: 'ISSUED',
           bookTitle: 'Introduction to Algorithms (4th Edition)',
-          bookAuthor: 'Cormen, Leiserson, Rivest, Stein',
+          studentId: 'S101',
           studentName: 'Alex Rivera',
-          daysRemaining: 8,
-          isOverdue: false,
+          issueDate: '2026-11-01',
+          returnDate: null,
+          status: 'ISSUED',
+          createdAt: '2026-11-01T10:00:00Z',
         },
       ];
     }
@@ -474,23 +467,25 @@ export const api = {
           id: 1,
           transactionId: 'TXN-001',
           bookId: 'B101',
-          studentId: 'S101',
-          issueDate: '2026-11-01',
-          status: 'ISSUED',
           bookTitle: 'Introduction to Algorithms (4th Edition)',
-          bookAuthor: 'Cormen et al.',
+          studentId: 'S101',
           studentName: 'Alex Rivera',
+          issueDate: '2026-11-01',
+          returnDate: null,
+          status: 'ISSUED',
+          createdAt: '2026-11-01T10:00:00Z',
         },
         {
           id: 2,
           transactionId: 'TXN-002',
           bookId: 'B103',
-          studentId: 'S102',
-          issueDate: '2026-11-03',
-          status: 'ISSUED',
           bookTitle: 'Design Patterns',
-          bookAuthor: 'Gamma et al.',
+          studentId: 'S102',
           studentName: 'Sarah Connor',
+          issueDate: '2026-11-03',
+          returnDate: null,
+          status: 'ISSUED',
+          createdAt: '2026-11-03T11:00:00Z',
         },
       ];
     }
@@ -508,23 +503,25 @@ export const api = {
           id: 1,
           transactionId: 'TXN-001',
           bookId: 'B101',
-          studentId: 'S101',
-          issueDate: '2026-11-01',
-          status: 'ISSUED',
           bookTitle: 'Introduction to Algorithms (4th Edition)',
-          bookAuthor: 'Cormen et al.',
+          studentId: 'S101',
           studentName: 'Alex Rivera',
+          issueDate: '2026-11-01',
+          returnDate: null,
+          status: 'ISSUED',
+          createdAt: '2026-11-01T10:00:00Z',
         },
         {
           id: 2,
           transactionId: 'TXN-002',
           bookId: 'B103',
-          studentId: 'S102',
-          issueDate: '2026-11-03',
-          status: 'ISSUED',
           bookTitle: 'Design Patterns',
-          bookAuthor: 'Gamma et al.',
+          studentId: 'S102',
           studentName: 'Sarah Connor',
+          issueDate: '2026-11-03',
+          returnDate: null,
+          status: 'ISSUED',
+          createdAt: '2026-11-03T11:00:00Z',
         },
       ];
     }
@@ -551,13 +548,15 @@ export const api = {
         {
           id: 'ACT-1',
           type: 'ISSUE',
-          message: 'Book "Introduction to Algorithms" issued to Alex Rivera (S101)',
+          title: 'Book Borrowed',
+          description: 'Book "Introduction to Algorithms" issued to Alex Rivera (S101)',
           timestamp: '2 hours ago',
         },
         {
           id: 'ACT-2',
           type: 'RETURN',
-          message: 'Book "Clean Architecture" returned by Sarah Connor (S102)',
+          title: 'Book Returned',
+          description: 'Book "Clean Architecture" returned by Sarah Connor (S102)',
           timestamp: '4 hours ago',
         },
       ];
@@ -570,9 +569,9 @@ export const api = {
       return await handleResponse<PopularBook[]>(res);
     } catch {
       return [
-        { id: 1, bookId: 'B101', title: 'Introduction to Algorithms', author: 'Cormen, Leiserson, Rivest, Stein', borrowCount: 14 },
-        { id: 2, bookId: 'B105', title: 'Artificial Intelligence: A Modern Approach', author: 'Russell & Norvig', borrowCount: 11 },
-        { id: 3, bookId: 'B102', title: 'Clean Architecture', author: 'Robert C. Martin', borrowCount: 9 },
+        { bookId: 'B101', title: 'Introduction to Algorithms (4th Edition)', author: 'Cormen, Leiserson, Rivest, Stein', issueCount: 14, availableCopies: 4 },
+        { bookId: 'B105', title: 'Artificial Intelligence: A Modern Approach', author: 'Russell & Norvig', issueCount: 11, availableCopies: 4 },
+        { bookId: 'B102', title: 'Clean Architecture', author: 'Robert C. Martin', issueCount: 9, availableCopies: 3 },
       ];
     }
   },
